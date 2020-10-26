@@ -1,0 +1,57 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "inzidenz wert",
+      "intents": [
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "QueryValueIntent",
+          "slots": [],
+          "samples": [
+            "dem Wert",
+            "dem aktuellen Wert"
+          ]
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "name": "QueryCityIntent",
+          "slots": [
+            {
+              "name": "city",
+              "type": "AMAZON.City"
+            }
+          ],
+          "samples": [
+            "{city}",
+            "für {city}",
+            "in {city}",
+            "nach {city}",
+            "nach dem Wert für {city}",
+            "den Wert für {city}",
+            "der Wert für {city}"
+          ]
+        }
+      ],
+      "types": []
+    }
+  },
+  "version": "2"
+}

@@ -1,0 +1,58 @@
+{
+  "manifest": {
+    "apis": {
+      "custom": {
+        "endpoint": {
+          "uri": "arn:aws:lambda:eu-west-1:467353799488:function:inzidenzWert"
+        },
+        "interfaces": []
+      }
+    },
+    "manifestVersion": "1.0",
+    "permissions": [
+      {
+        "name": "alexa::devices:all:address:full:read"
+      }
+    ],
+    "privacyAndCompliance": {
+      "allowsPurchases": false,
+      "containsAds": false,
+      "isChildDirected": false,
+      "isExportCompliant": true,
+      "locales": {
+        "de-DE": {
+          "privacyPolicyUrl": "https://github.com/sgruendel/alexa-inzidenz-wert/blob/main/PRIVACY.md"
+        }
+      },
+      "usesPersonalInfo": false
+    },
+    "publishingInformation": {
+      "automaticDistribution": {
+        "isActive": false
+      },
+      "category": "HEALTH_AND_FITNESS",
+      "distributionCountries": [],
+      "isAvailableWorldwide": true,
+      "locales": {
+        "de-DE": {
+          "description": "Liefert die COVID-19-Fälle der letzten 7 Tage pro 100.000 Einwohner (7-Tage-Inzidenzwert) laut Robert Koch-Institut (NPGEO Corona Hub 2020) für die Adresse, die im Alexa-Gerät angegeben ist.\n\nVerbesserungsvorschläge und Feedback gerne unter https://github.com/sgruendel/alexa-inzidenz-wert/issues/new.",
+          "examplePhrases": [
+            "Alexa öffne Inzidenzwert",
+            "Alexa starte Inzidenzwert",
+            "Alexa starte Inzidenzwert in Würzburg"
+          ],
+          "keywords": [
+            "COVID19",
+            "COVID-19",
+            "Corona",
+            "RKI",
+            "Robert Koch-Institut"
+          ],
+          "name": "Inzidenzwert",
+          "summary": "Liefert den COVID-19 7-Tage-Inzidenzwert des RKI für die Adresse, die im Alexa-Gerät angegeben ist."
+        }
+      },
+      "testingInstructions": "Needs a valid German address (street, city, postal code) to find data."
+    }
+  }
+}
