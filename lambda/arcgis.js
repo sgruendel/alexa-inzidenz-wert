@@ -10,7 +10,7 @@ var exports = module.exports = {};
 exports.query = async(lat, lon) => {
     const qs = {
         where: '1=1',
-        outFields: 'GEN,cases7_per_100k',
+        outFields: 'GEN,BEZ,BL,county,cases,deaths,cases_per_100k,cases_per_population,cases7_per_100k,cases7_bl_per_100k,last_update',
         geometry: lon + ',' + lat,
         geometryType: 'esriGeometryPoint',
         inSR: 4326,

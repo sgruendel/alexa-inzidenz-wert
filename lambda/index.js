@@ -82,7 +82,7 @@ const LaunchRequestHandler = {
         result = await arcgis.query(latLng.lat, latLng.lng);
         logger.debug('query result', result.features[0].attributes);
 
-        const speechOutput = 'Der 7-Tage-Inzidenzwert in ' + result.features[0].attributes.GEN
+        const speechOutput = 'Der 7-Tage-Inzidenzwert in ' + result.features[0].attributes.BEZ + ' ' + result.features[0].attributes.GEN
             + ' beträgt '
             + new Intl.NumberFormat('de-DE').format(result.features[0].attributes.cases7_per_100k)
             + '.';
@@ -158,7 +158,7 @@ const QueryValueIntentHandler = {
         result = await arcgis.query(latLng.lat, latLng.lng);
         logger.debug('query result', result.features[0].attributes);
 
-        const speechOutput = 'Der 7-Tage-Inzidenzwert in ' + result.features[0].attributes.GEN
+        const speechOutput = 'Der 7-Tage-Inzidenzwert in ' + result.features[0].attributes.BEZ + ' ' + result.features[0].attributes.GEN
             + ' beträgt '
             + new Intl.NumberFormat('de-DE').format(result.features[0].attributes.cases7_per_100k)
             + '.';
@@ -195,7 +195,7 @@ const QueryCityIntentHandler = {
         result = await arcgis.query(latLng.lat, latLng.lng);
         logger.debug('query result', result.features[0].attributes);
 
-        const speechOutput = 'Der 7-Tage-Inzidenzwert in ' + result.features[0].attributes.GEN
+        const speechOutput = 'Der 7-Tage-Inzidenzwert in ' + result.features[0].attributes.BEZ + ' ' + result.features[0].attributes.GEN
             + ' beträgt '
             + new Intl.NumberFormat('de-DE').format(result.features[0].attributes.cases7_per_100k)
             + '.';

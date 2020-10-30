@@ -45,8 +45,7 @@
             "in {city}",
             "nach {city}",
             "nach dem Wert für {city}",
-            "den Wert für {city}",
-            "der Wert für {city}"
+            "nach dem Wert in {city}"
           ]
         }
       ],
