@@ -18,85 +18,55 @@ const mapquest = require('./mapquest');
 
 const SKILL_ID = 'amzn1.ask.skill.83374883-510f-46c4-9e04-65197fcc1adf';
 
-const LaunchRequestHandler = {
-    canHandle(handlerInput) {
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
-    },
-    async handle(handlerInput) {
-        const { request } = handlerInput.requestEnvelope;
-        logger.debug('request', request);
-
-        const deviceAddressServiceClient = handlerInput.serviceClientFactory.getDeviceAddressServiceClient();
-        const deviceId = Alexa.getDeviceId(handlerInput.requestEnvelope);
-        let address;
-        try {
-            address = await deviceAddressServiceClient.getFullAddress(deviceId);
-            logger.debug('address', address);
-        } catch (err) {
-            if (err.statusCode === 403) {
-                logger.debug('context', handlerInput.requestEnvelope.context);
-                return handlerInput.responseBuilder
-                    .speak('Bitte die Berechtigung für die Abfrage der Geräte-Adresse in den Skill-Einstellungen der Amazon Alexa App aktivieren.')
-                    .withAskForPermissionsConsentCard(['read::alexa:device:all:address'])
+async function getIncidenceValueResponse(location, locationNotFoundMsg, handlerInput) {
+    let response;
+    await mapquest.address(location)
+        .then(async(address) => {
+            if (address.info.statuscode !== 0) {
+                logger.error('error reverse geocoding "' + location + '": ', address.info);
+                response = handlerInput.responseBuilder
+                    .speak(locationNotFoundMsg)
                     .getResponse();
+            } else {
+                // TODO no results
+                logger.debug('found locations', address.results[0].locations);
+                if (address.results[0].locations[0].adminArea1 !== 'DE') {
+                    logger.error('unsupported country ' + address.results[0].locations[0].adminArea1 + ' for ' + location);
+                    response = handlerInput.responseBuilder
+                        .speak('Ich kann den Wert nur für Deutschland bestimmen.')
+                        .getResponse();
+                } else {
+                    const latLng = address.results[0].locations[0].latLng;
+
+                    const query = await arcgis.query(latLng.lat, latLng.lng);
+                    // TODO catch err
+                    logger.debug('query result', query.features[0].attributes);
+
+                    const speechOutput = 'Der 7-Tage-Inzidenzwert in ' + query.features[0].attributes.BEZ + ' ' + query.features[0].attributes.GEN
+                        + ' beträgt '
+                        + new Intl.NumberFormat('de-DE').format(query.features[0].attributes.cases7_per_100k)
+                        + '.';
+                    response = handlerInput.responseBuilder
+                        .speak(speechOutput)
+                        // .reprompt('add a reprompt if you want to keep the session open for the user to respond')
+                        .getResponse();
+                }
             }
-            logger.error('getFullAddress error', err);
+        })
+        .catch((err) => {
             logger.error(err.stack || err.toString());
-        }
-        if (!address) {
-            return handlerInput.responseBuilder
-                .speak('Bitte die Berechtigung für die Abfrage der Geräte-Adresse in den Skill-Einstellungen der Amazon Alexa App aktivieren.')
-                .withAskForPermissionsConsentCard(['read::alexa:device:all:address'])
+            response = handlerInput.responseBuilder
+                .speak('Es gibt leider gerade ein Problem mit dem Lokalisieren von Adressen, bitte versuche es später erneut.')
                 .getResponse();
-        }
-
-        if (address.countryCode !== 'DE') {
-            logger.error('unsupported country ' + address.countryCode);
-            return handlerInput.responseBuilder
-                .speak('Ich kann den Wert nur für Adressen in Deutschland bestimmen.')
-                .getResponse();
-        }
-
-        let location = address.addressLine1 || '';
-        if (address.addressLine2) {
-            location += ' ' + address.addressLine2;
-        }
-        if (address.addressLine3) {
-            location += ' ' + address.addressLine3;
-        }
-        if (location) {
-            location += ',';
-        }
-        location += address.postalCode + ' ' + address.city;
-        logger.debug('reverse geocoding location ' + location);
-        let result = await mapquest.address(location);
-        if (result.info.statuscode !== 0) {
-            logger.error('error reverse geocoding "' + location + '":', result.info);
-            return handlerInput.responseBuilder
-                .speak('Ich kann die Adresse leider nicht finden.')
-                .getResponse();
-        }
-        logger.debug('found locations', result.results[0].locations);
-        const latLng = result.results[0].locations[0].latLng;
-
-        result = await arcgis.query(latLng.lat, latLng.lng);
-        logger.debug('query result', result.features[0].attributes);
-
-        const speechOutput = 'Der 7-Tage-Inzidenzwert in ' + result.features[0].attributes.BEZ + ' ' + result.features[0].attributes.GEN
-            + ' beträgt '
-            + new Intl.NumberFormat('de-DE').format(result.features[0].attributes.cases7_per_100k)
-            + '.';
-        return handlerInput.responseBuilder
-            .speak(speechOutput)
-            // .reprompt('add a reprompt if you want to keep the session open for the user to respond')
-            .getResponse();
-    },
-};
+        });
+    return response;
+}
 
 const QueryValueIntentHandler = {
     canHandle(handlerInput) {
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'QueryValueIntent';
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest'
+            || (Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+                && Alexa.getIntentName(handlerInput.requestEnvelope) === 'QueryValueIntent');
     },
     async handle(handlerInput) {
         const { request } = handlerInput.requestEnvelope;
@@ -145,27 +115,7 @@ const QueryValueIntentHandler = {
         }
         location += address.postalCode + ' ' + address.city;
         logger.debug('reverse geocoding location ' + location);
-        let result = await mapquest.address(location);
-        if (result.info.statuscode !== 0) {
-            logger.error('error reverse geocoding "' + location + '":', result.info);
-            return handlerInput.responseBuilder
-                .speak('Ich kann die Adresse leider nicht finden.')
-                .getResponse();
-        }
-        logger.debug('found locations', result.results[0].locations);
-        const latLng = result.results[0].locations[0].latLng;
-
-        result = await arcgis.query(latLng.lat, latLng.lng);
-        logger.debug('query result', result.features[0].attributes);
-
-        const speechOutput = 'Der 7-Tage-Inzidenzwert in ' + result.features[0].attributes.BEZ + ' ' + result.features[0].attributes.GEN
-            + ' beträgt '
-            + new Intl.NumberFormat('de-DE').format(result.features[0].attributes.cases7_per_100k)
-            + '.';
-        return handlerInput.responseBuilder
-            .speak(speechOutput)
-            // .reprompt('add a reprompt if you want to keep the session open for the user to respond')
-            .getResponse();
+        return getIncidenceValueResponse(location, 'Ich kann die Adresse leider nicht finden.', handlerInput);
     },
 };
 
@@ -181,28 +131,7 @@ const QueryCityIntentHandler = {
         const city = Alexa.getSlotValue(handlerInput.requestEnvelope, 'city');
 
         logger.debug('reverse geocoding city ' + city);
-        let result = await mapquest.address(city);
-        if (result.info.statuscode !== 0) {
-            logger.error('error reverse geocoding "' + city + '":', result.info);
-            return handlerInput.responseBuilder
-                .speak('Ich kann diese Stadt leider nicht finden.')
-                .getResponse();
-        }
-        //logger.debug('found locations', result.results[0].locations);
-        logger.debug('found locations', result.results);
-        const latLng = result.results[0].locations[0].latLng;
-
-        result = await arcgis.query(latLng.lat, latLng.lng);
-        logger.debug('query result', result.features[0].attributes);
-
-        const speechOutput = 'Der 7-Tage-Inzidenzwert in ' + result.features[0].attributes.BEZ + ' ' + result.features[0].attributes.GEN
-            + ' beträgt '
-            + new Intl.NumberFormat('de-DE').format(result.features[0].attributes.cases7_per_100k)
-            + '.';
-        return handlerInput.responseBuilder
-            .speak(speechOutput)
-            // .reprompt('add a reprompt if you want to keep the session open for the user to respond')
-            .getResponse();
+        return getIncidenceValueResponse(city, 'Ich kann diese Stadt leider nicht finden.', handlerInput);
     },
 };
 
@@ -331,7 +260,6 @@ try {
 }
 exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
-        LaunchRequestHandler,
         QueryValueIntentHandler,
         QueryCityIntentHandler,
         HelpIntentHandler,

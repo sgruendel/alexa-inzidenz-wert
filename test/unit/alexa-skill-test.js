@@ -86,17 +86,45 @@ describe('Inzidenzwert Skill', () => {
         ]);
     });
 
-    /*
-    describe('RadioGongIntent', () => {
+    describe('QueryValueIntent', () => {
         alexaTest.test([
             {
-                request: alexaTest.getIntentRequest('RadioGongIntent'),
-                saysLike: 'Du hörst gerade ',
-                hasCardTitle: 'Radio Gong Playlist',
-                hasCardTextLike: 'Du hörst gerade ',
+                request: alexaTest.getIntentRequest('QueryValueIntent'),
+                says: 'Bitte die Berechtigung für die Abfrage der Geräte-Adresse in den Skill-Einstellungen der Amazon Alexa App aktivieren.',
+                //hasCardTitle: 'Radio Gong Playlist',
+                //hasCardTextLike: 'Du hörst gerade ',
                 repromptsNothing: true, shouldEndSession: true,
             },
         ]);
     });
-    */
+
+    describe('QueryCityIntent', () => {
+        alexaTest.test([
+            {
+                request: alexaTest.getIntentRequest('QueryCityIntent'),
+                says: 'Ich kann diese Stadt leider nicht finden.',
+                repromptsNothing: true, shouldEndSession: true,
+            },
+            {
+                request: alexaTest.getIntentRequest('QueryCityIntent', { city: 'würzburg' }),
+                saysLike: 'Der 7-Tage-Inzidenzwert in Kreisfreie Stadt Würzburg beträgt ',
+                repromptsNothing: true, shouldEndSession: true,
+            },
+            {
+                request: alexaTest.getIntentRequest('QueryCityIntent', { city: 'waldbüttelbrunn' }),
+                saysLike: 'Der 7-Tage-Inzidenzwert in Landkreis Würzburg beträgt ',
+                repromptsNothing: true, shouldEndSession: true,
+            },
+            {
+                request: alexaTest.getIntentRequest('QueryCityIntent', { city: 'london' }),
+                says: 'Ich kann den Wert nur für Deutschland bestimmen.',
+                repromptsNothing: true, shouldEndSession: true,
+            },
+            {
+                request: alexaTest.getIntentRequest('QueryCityIntent', { city: 'x y z' }),
+                says: 'Ich kann den Wert nur für Deutschland bestimmen.',
+                repromptsNothing: true, shouldEndSession: true,
+            },
+        ]);
+    });
 });

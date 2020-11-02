@@ -39,7 +39,7 @@ describe('arcgis', () => {
             expect(result.features[0].attributes.last_update).to.be.a('String');
         });
 
-        it('should work für Eisingen', async () => {
+        it('should work für Eisingen', async() => {
             const result = await arcgis.query(49.762, 9.826);
             expect(result.features).to.exist;
             expect(result.features).to.have.lengthOf(1);

@@ -10,6 +10,8 @@ describe('mapquest', () => {
             expect(result.info.statuscode).to.equal(0);
             expect(result.results).to.have.lengthOf(1);
             expect(result.results[0].locations).to.have.lengthOf(1);
+            expect(result.results[0].locations[0].adminArea1Type).to.equal('Country');
+            expect(result.results[0].locations[0].adminArea1).to.equal('DE');
             expect(result.results[0].locations[0].latLng.lat).to.equal(49.797763);
             expect(result.results[0].locations[0].latLng.lng).to.equal(9.944532);
         });
@@ -19,6 +21,8 @@ describe('mapquest', () => {
             expect(result.info.statuscode).to.equal(0);
             expect(result.results).to.have.lengthOf(1);
             expect(result.results[0].locations).to.have.lengthOf(1);
+            expect(result.results[0].locations[0].adminArea1Type).to.equal('Country');
+            expect(result.results[0].locations[0].adminArea1).to.equal('DE');
             expect(result.results[0].locations[0].latLng.lat).to.equal(49.738005);
             expect(result.results[0].locations[0].latLng.lng).to.equal(10.138158);
         });
