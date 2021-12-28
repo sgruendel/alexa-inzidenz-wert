@@ -24,7 +24,7 @@
             "revisionId": "9579188f-b2fe-4d4a-b96e-542febc0b71f",
             "codeUri": "lambda",
             "handler": "index.handler",
-            "runtime": "nodejs12.x"
+            "runtime": "nodejs14.x"
           }
         ]
       }
